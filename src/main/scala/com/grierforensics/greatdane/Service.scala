@@ -64,7 +64,9 @@ class GensonCustomResolver extends ContextResolver[Genson] {
 /**
   * Embedded Jetty/Jersey REST web server
   *
-  * See https://www.acando.no/thedailypassion/200555/a-rest-service-with-jetty-and-jersey
+  * See
+  *   - https://www.acando.no/thedailypassion/200555/a-rest-service-with-jetty-and-jersey
+  *   - http://nikgrozev.com/2014/10/16/rest-with-embedded-jetty-and-jersey-in-a-single-jar-step-by-step/
   */
 object Service extends LazyLogging {
 
