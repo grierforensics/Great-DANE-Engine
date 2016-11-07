@@ -10,7 +10,7 @@ import javax.ws.rs.core.{MediaType, Response}
 class Resource {
 
   @GET
-  @Path("{email}/pem")
+  @Path("{email}/test")
   def pem(@PathParam("email") email: String): Seq[String] = {
     Service.DaneEngine.certs(email).map(_.toString) match {
       case Nil => throw new WebApplicationException(Response.status(404).build())
@@ -19,11 +19,54 @@ class Resource {
   }
 
   @GET
-  @Path("{email}/pem/{id}")
+  @Path("{email}/test/{id}")
   def pem(@PathParam("email") email: String, @PathParam("id") id: Int): String = {
     Service.DaneEngine.certs(email)
       .lift(id)
       .map(_.toString)
       .getOrElse(throw new WebApplicationException(Response.status(404).build()))
+  }
+
+  @GET
+  @Path("{email}/{format: pem|hex|text}")
+  def certsForEmail(@PathParam("email") email: String, @PathParam("format") format: String): Seq[String] = {
+    val certs = format match {
+      case "pem" => Service.DaneEngine.pem(email)
+      case "hex" => Service.DaneEngine.hex(email)
+      case "text" => Service.DaneEngine.text(email)
+      case _ => throw new WebApplicationException(Response.status(404).build())
+    }
+
+    certs match {
+      case Nil => throw new WebApplicationException(Response.status(404).build())
+      case cs => cs
+    }
+  }
+
+  @GET
+  @Path("{email}/{format: pem|hex|text}/{id}")
+  def certsForEmail(@PathParam("email") email: String, @PathParam("format") format: String, @PathParam("id") id: Int): String = {
+    certsForEmail(email, format).lift(id).getOrElse(throw new WebApplicationException(Response.status(404).build()))
+  }
+
+  @GET
+  @Path("{email}/dnsZoneLine")
+  def dnsZoneLine(@PathParam("email") email: String): Seq[String] = {
+    Service.DaneEngine.dnsZoneLines(email) match {
+      case Nil => throw new WebApplicationException(Response.status(404).build())
+      case ls => ls
+    }
+  }
+
+  @GET
+  @Path("{email}/dnsZoneLine/{id}")
+  def dnsZoneLine(@PathParam("email") email: String, @PathParam("id") id: Int): String = {
+    dnsZoneLine(email).lift(id).getOrElse(throw new WebApplicationException(Response.status(404).build()))
+  }
+
+  @POST
+  @Path("{email}/dnsZoneLine")
+  def dnsZoneLine(@PathParam("email") email: String, pemEncodedCertificate: String): String = {
+    Service.DaneEngine.dnsZoneLine(email, pemEncodedCertificate)
   }
 }

@@ -5,6 +5,8 @@ package com.grierforensics.greatdane
 import com.typesafe.config.ConfigFactory
 
 object Settings {
+  import scala.collection.JavaConverters._
+
   val config = {
     val cfg = ConfigFactory.load()
     cfg.getConfig("com.grierforensics.greatdane.engine")
@@ -12,6 +14,6 @@ object Settings {
 
   object Default {
     val Port = config.getInt("port")
-    val DnsServer = config.getString("dns")
+    val DnsServers = config.getStringList("dns").asScala
   }
 }

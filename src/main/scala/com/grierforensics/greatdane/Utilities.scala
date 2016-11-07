@@ -1,16 +1,28 @@
 // Copyright (C) 2016 Grier Forensics. All Rights Reserved.
 package com.grierforensics.greatdane
 
-import java.security.Security
+import java.nio.file.{Files, Paths}
 import javax.naming.Context
 import javax.naming.directory.{DirContext, InitialDirContext}
 
-import org.bouncycastle.asn1.nist.NISTObjectIdentifiers
-import org.bouncycastle.asn1.x509.AlgorithmIdentifier
-import org.bouncycastle.cert.dane.{DANEEntry, DANEEntrySelectorFactory, TruncatingDigestCalculator}
-import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.bouncycastle.openssl.jcajce.JcaPEMWriter
-import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder
+import org.bouncycastle.cert.dane.{DANEEntry, DANEEntrySelectorFactory, DANEException}
+import org.bouncycastle.util.encoders.Hex
+
+object GenDaneEntry {
+  def main(args: Array[String]): Unit = {
+    if (args.length < 2) {
+      println("Usage: test <email> <cert (DER)>")
+      sys.exit(1)
+    }
+
+    val email = args(0)
+    val der = Files.readAllBytes(Paths.get(args(1)))
+    //val pem = new String(Files.readAllBytes(Paths.get(args(1))))
+
+    val engine = new Engine()
+    println(engine.dnsZoneLine(email, der))
+  }
+}
 
 /** Queries for DANE SMIMEA records */
 object DnsCheck {
@@ -23,7 +35,7 @@ object DnsCheck {
 
     val old = allArgs(0) == "-old"
     val args = if (old) allArgs.tail else allArgs
-    val DaneType = if (old) "65500" else "53"
+    val DaneType = if (old) Engine.OldDaneType else Engine.DaneType
 
     val env = new java.util.Hashtable[String, String]()
     env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory")
@@ -50,25 +62,20 @@ object DnsCheck {
     val attrs = ctx.getAttributes(domainName, Array(DaneType))
     val smimeAttr = attrs.get(DaneType)
     if (smimeAttr != null) {
-      println("Found SMIMEA record")
+      println(s"Found ${smimeAttr.size()} SMIMEA records")
 
-      val data = smimeAttr.get().asInstanceOf[Array[Byte]]
-      if (DANEEntry.isValidCertificate(data)) {
-        val entry = new DANEEntry(domainName, data)
-        println(s"Subject: ${entry.getCertificate.getSubject}")
-
-        import java.io.StringWriter
-        val sw = new StringWriter()
-        val pemWriter = new JcaPEMWriter(sw)
-        try {
-          pemWriter.writeObject(entry.getCertificate)
-        } finally {
-          pemWriter.close()
+      for (idx <- 0 until smimeAttr.size()) {
+        val data = smimeAttr.get(idx).asInstanceOf[Array[Byte]]
+        if (!DANEEntry.isValidCertificate(data)) {
+          println(s"#$idx is not a valid certificate")
         }
-        println(sw.toString)
-      } else {
-        println("Payload is not a valid certificate")
-
+        try {
+          val entry = new DANEEntry(domainName, data)
+          println(s"Subject: ${entry.getCertificate.getSubject}")
+          println(Engine.toPem(entry.getCertificate))
+        } catch {
+          case e: DANEException => println("Failed to create DANEEntry")
+        }
       }
     }
 
@@ -83,19 +90,8 @@ object DnsCheck {
 }
 
 class EmailConverter(oldHashAlgo: Boolean = false) {
-
-  val digestCalculator = {
-    val digestCalculatorProvider = new JcaDigestCalculatorProviderBuilder()
-      .setProvider(EmailConverter.Provider).build()
-    if (oldHashAlgo) {
-      digestCalculatorProvider.get(
-        new AlgorithmIdentifier(NISTObjectIdentifiers.id_sha224))
-    } else {
-      val sha256DigestCalculator = digestCalculatorProvider.get(
-        new AlgorithmIdentifier(NISTObjectIdentifiers.id_sha256))
-      new TruncatingDigestCalculator(sha256DigestCalculator)
-    }
-  }
+  val digestCalculator =
+    if (oldHashAlgo) Engine.Sha224DigestCalculator else Engine.TruncatingDigestCalculator
 
   val selectorFactory = new DANEEntrySelectorFactory(digestCalculator)
 
@@ -104,10 +100,6 @@ class EmailConverter(oldHashAlgo: Boolean = false) {
 }
 
 object EmailConverter {
-  // Ensure the BouncyCastleProvider is installed only once
-  private val Provider = new BouncyCastleProvider()
-  Security.addProvider(Provider)
-
   def main(args: Array[String]): Unit = {
     val usage = "Usage: email-converter [-old] <email address> [<email-address>...]"
     if (args.length < 0) {
@@ -132,3 +124,29 @@ object EmailConverter {
     emailAddresses.foreach(addr => println(converter.convert(addr)))
   }
 }
+
+object EncodeHex {
+  def main(args: Array[String]): Unit = {
+    if (args.length < 2) {
+      println("Usage: encode-hex <infile> <outfile>")
+      sys.exit(1)
+    }
+
+    val bytes = Files.readAllBytes(Paths.get(args(0)))
+    Files.write(Paths.get(args(1)), Hex.encode(bytes))
+  }
+}
+
+object DecodeHex {
+  def main(args: Array[String]): Unit = {
+    if (args.length < 2) {
+      println("Usage: decode-hex <infile> <outfile>")
+      sys.exit(1)
+    }
+
+    val bytes = Files.readAllBytes(Paths.get(args(0)))
+    val s = new String(bytes, "utf-8").replaceAll("\\s", "")
+    Files.write(Paths.get(args(1)), Hex.decode(s))
+  }
+}
+

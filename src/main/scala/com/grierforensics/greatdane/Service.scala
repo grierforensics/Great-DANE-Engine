@@ -19,8 +19,8 @@ import org.glassfish.jersey.servlet.ServletContainer
 
 /** Genson configuration for serializing objects to JSON */
 object GensonConfig {
-  import com.owlike.genson.{Context, Converter, Genson, GensonBuilder, ScalaBundle}
   import com.owlike.genson.stream.{ObjectReader, ObjectWriter}
+  import com.owlike.genson.{Context, Converter, Genson, GensonBuilder, ScalaBundle}
 
   val genson: Genson = new GensonBuilder().
     useIndentation(true).
@@ -49,7 +49,7 @@ class CatchAllExceptionMapper extends ExceptionMapper[Exception] with LazyLoggin
       case e: WebApplicationException => e.getResponse
       case e: Exception => {
         logger.warn("request failed", ex)
-        Response.status(500).entity(ex.getMessage()).build()
+        Response.status(500).entity(s"Server Error: ${ex.getMessage()}").build()
       }
     }
   }
@@ -70,7 +70,9 @@ class GensonCustomResolver extends ContextResolver[Genson] {
   */
 object Service extends LazyLogging {
 
-  val DaneEngine = new Engine(Settings.Default.DnsServer)
+  val dnsServers = Settings.Default.DnsServers
+  val DaneEngine = new Engine(dnsServers:_*)
+  logger.info(s"Using DNS addresses: ${dnsServers.mkString(", ")}")
 
   def main(args: Array[String]): Unit = {
     val port = Settings.Default.Port
@@ -88,6 +90,7 @@ object Service extends LazyLogging {
 
     try {
       server.start()
+      logger.info(s"Listening on port $port")
       server.join()
     } finally {
       server.destroy()
