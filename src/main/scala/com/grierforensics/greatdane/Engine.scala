@@ -118,27 +118,11 @@ class Engine(dnsServers: String*) {
   }
 
   private def createEntry(emailAddress: String, encodedCertificate: Array[Byte]): DANEEntry = {
-    val holder = validateCertificate(encodedCertificate)
-    EntryFactory.createEntry(emailAddress, holder)
+    EntryFactory.createEntry(emailAddress, new X509CertificateHolder(encodedCertificate))
   }
 
   private def createEntry(emailAddress: String, certificate: X509Certificate): DANEEntry = {
     createEntry(emailAddress, certificate.getEncoded)
-  }
-
-  private def validateCertificate(encodedCertificate: Array[Byte]): X509CertificateHolder = {
-    val holder = new X509CertificateHolder(encodedCertificate)
-
-    //val cvp = new JcaContentVerifierProviderBuilder().setProvider(Provider).build(holder)
-    val contentVerifierProvider = new BcRSAContentVerifierProviderBuilder(new DefaultDigestAlgorithmIdentifierFinder()).build(holder)
-    if (!holder.isSignatureValid(contentVerifierProvider)) {
-      throw new InvalidCertificateException("Certificate signature is invalid.")
-    }
-    if (!holder.isValidOn(new java.util.Date)) {
-      throw new InvalidCertificateException("Certificate expired.")
-    }
-
-    holder
   }
 
   private def fetchEntries(emailAddress: String): Seq[DANEEntry] = {
