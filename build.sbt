@@ -7,6 +7,8 @@ scalaVersion := "2.11.8"
 packAutoSettings
 
 libraryDependencies ++= Seq(
+  "org.scalatest" %% "scalatest" % "3.0.0" % "test",
+
   "com.typesafe" % "config" % "1.3.1",
 
   "ch.qos.logback" %  "logback-classic" % "1.1.7",
@@ -16,8 +18,6 @@ libraryDependencies ++= Seq(
   "org.bouncycastle" % "bcmail-jdk15on" % "1.55",
 
   "com.owlike" % "genson-scala" % "1.2",
-
-  "javax.mail" % "javax.mail-api" % "1.5.6",
 
   "org.eclipse.jetty" % "jetty-server" % "9.3.13.v20161014",
   "org.eclipse.jetty" % "jetty-servlet" % "9.3.13.v20161014",

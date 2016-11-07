@@ -11,7 +11,7 @@ import org.bouncycastle.util.encoders.Hex
 object GenDaneEntry {
   def main(args: Array[String]): Unit = {
     if (args.length < 2) {
-      println("Usage: test <email> <cert (DER)>")
+      println("Usage: gen-dane-entry <email> <cert (DER)>")
       sys.exit(1)
     }
 
@@ -37,6 +37,11 @@ object DnsCheck {
     val args = if (old) allArgs.tail else allArgs
     val DaneType = if (old) Engine.OldDaneType else Engine.DaneType
 
+    // The following is a "rewrite" of the core functionality of BouncyCastle's
+    // JndiDANEFetcherFactory class, which "accidentally" lists all bindings for
+    // a given domain name by calling `ctx.listBindings(domainName)`, which is
+    // explicitly rejected by many DNS servers. For Java DNS notes, see
+    // https://docs.oracle.com/javase/8/docs/technotes/guides/jndi/jndi-dns.html
     val env = new java.util.Hashtable[String, String]()
     env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory")
 
