@@ -14,6 +14,7 @@ libraryDependencies ++= Seq(
 
   "ch.qos.logback" %  "logback-classic" % "1.1.7",
   "com.typesafe.scala-logging" % "scala-logging_2.11" % "3.5.0",
+  "org.slf4j" % "jul-to-slf4j" % "1.7.21",
 
   "org.bouncycastle" % "bcprov-jdk15on" % "1.55",
   "org.bouncycastle" % "bcmail-jdk15on" % "1.55",

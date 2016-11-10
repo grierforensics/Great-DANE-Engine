@@ -1,6 +1,7 @@
 // Copyright (C) 2016 Grier Forensics. All Rights Reserved.
 package com.grierforensics.greatdane
 
+import java.util.logging.Logger
 import javax.ws.rs.WebApplicationException
 import javax.ws.rs.core.Response
 import javax.ws.rs.ext.{ContextResolver, ExceptionMapper, Provider}
@@ -10,9 +11,11 @@ import com.owlike.genson.ext.jaxrs.GensonJsonConverter
 import com.typesafe.scalalogging.LazyLogging
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.servlet.{ServletContextHandler, ServletHolder}
+import org.glassfish.jersey.logging.LoggingFeature
 import org.glassfish.jersey.model.ContractProvider
 import org.glassfish.jersey.server.ResourceConfig
 import org.glassfish.jersey.servlet.ServletContainer
+import org.slf4j.bridge.SLF4JBridgeHandler
 
 
 /** Genson configuration for serializing objects to JSON */
@@ -59,6 +62,8 @@ class Service(engine: Engine, port: Int) extends LazyLogging {
   config.register(new GensonJsonConverter(new GensonCustomResolver), ContractProvider.NO_PRIORITY)
   config.register(new CatchAllExceptionMapper, ContractProvider.NO_PRIORITY)
   config.register(new Resource(engine), ContractProvider.NO_PRIORITY)
+  config.register(new LoggingFeature(Logger.getLogger(getClass.getName),
+      LoggingFeature.Verbosity.HEADERS_ONLY), ContractProvider.NO_PRIORITY)
 
   val servlet = new ServletHolder(new ServletContainer(config))
   val server = new Server(port)
@@ -79,6 +84,10 @@ class Service(engine: Engine, port: Int) extends LazyLogging {
 }
 
 object Service extends LazyLogging {
+
+  SLF4JBridgeHandler.removeHandlersForRootLogger()
+  SLF4JBridgeHandler.install()
+
   def main(args: Array[String]): Unit = {
     val engine = new Engine(Settings.Default.DnsServers:_*)
     logger.info(s"Using DNS addresses: ${Settings.Default.DnsServers.mkString(", ")}")
