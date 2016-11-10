@@ -204,7 +204,6 @@ object Engine {
     sw.toString
   }
 
-
   /** Decode a PEM-encoded certificate into an X.509 Certificate object */
   def fromPem(encoded: String): X509Certificate = {
     import java.io.StringReader
@@ -213,7 +212,7 @@ object Engine {
     val obj = parser.readObject()
 
     obj match {
-      case ch: X509CertificateHolder => CertificateConverter.getCertificate(ch)
+      case holder: X509CertificateHolder => CertificateConverter.getCertificate(holder)
         // TODO: support public keys, warn/error for private keys
         // See https://gist.github.com/akorobov/6910564 for examples
       case _ => throw new RuntimeException("Invalid PEM-encoded certificate.")
@@ -224,6 +223,13 @@ object Engine {
   def toHex(ch: X509CertificateHolder): String = toHex(convert(ch))
   def toHex(cert: X509Certificate): String = toHex(cert.getEncoded)
   def toHex(data: Array[Byte]): String = Hex.toHexString(data).toUpperCase
+
+  // For symmetry/testing
+  def fromHex(hex: String): X509Certificate = {
+    val bytes = Hex.decode(hex)
+    val holder = new X509CertificateHolder(bytes)
+    CertificateConverter.getCertificate(holder)
+  }
 
 
   /** Command-line tool for testing */
