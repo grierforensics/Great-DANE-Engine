@@ -8,6 +8,7 @@ packAutoSettings
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.0" % "test",
+  "commons-io" % "commons-io" % "2.5" % "test",
 
   "com.typesafe" % "config" % "1.3.1",
 

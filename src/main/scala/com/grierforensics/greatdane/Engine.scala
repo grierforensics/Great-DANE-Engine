@@ -40,8 +40,8 @@ class Engine(dnsServers: String*) {
   val certdb = Map(
     "joe" -> List("hello", "world", "goodbye", "all")
   )
-  def certs(email: String): List[String] = {
-    certdb.getOrElse(email, List())
+  def certs(email: String): Seq[String] = {
+    certdb.getOrElse(email, Seq())
   }
 
   /** Retrieves plaintext certificates for the given email address
