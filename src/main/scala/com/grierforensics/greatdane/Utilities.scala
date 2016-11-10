@@ -3,9 +3,10 @@ package com.grierforensics.greatdane
 
 import java.nio.file.{Files, Paths}
 import javax.naming.Context
-import javax.naming.directory.{DirContext, InitialDirContext}
+import javax.naming.directory.InitialDirContext
 
-import org.bouncycastle.cert.dane.{DANEEntry, DANEEntrySelectorFactory, DANEException}
+import com.grierforensics.greatdane.bc.fetcher.JndiDANEFetcherFactory
+import com.grierforensics.greatdane.bc.{DANEEntry, DANEEntrySelectorFactory, DANEException}
 import org.bouncycastle.util.encoders.Hex
 
 object GenDaneEntry {
@@ -25,11 +26,11 @@ object GenDaneEntry {
 }
 
 /** Queries for DANE SMIMEA records */
-object DnsCheck {
+object DaneSearchManual {
 
   def main(allArgs: Array[String]): Unit = {
     if (allArgs.length < 1) {
-      println("Usage: dns-check [-old] [<dns-server>...] <name|email>")
+      println("Usage: dane-search-manual [-old] [<dns-server>...] <name|email>")
       sys.exit(1)
     }
 
@@ -59,10 +60,7 @@ object DnsCheck {
     val ctx = new InitialDirContext(env)
 
     // If "name" is an email address, convert it using the old, SHA-224 algo (for now)
-    val domainName = if (args.last.contains("@")) new EmailConverter(old).convert(args.last) else args.last
-    val dc = ctx.lookup(domainName).asInstanceOf[DirContext]
-    println(s"Lookup: ${dc.getNameInNamespace}")
-
+    val domainName = if (args.last.contains("@")) new ConvertEmail(old).convert(args.last) else args.last
 
     val attrs = ctx.getAttributes(domainName, Array(DaneType))
     val smimeAttr = attrs.get(DaneType)
@@ -77,24 +75,43 @@ object DnsCheck {
         try {
           val entry = new DANEEntry(domainName, data)
           println(s"Subject: ${entry.getCertificate.getSubject}")
-          println(Engine.toPem(entry.getCertificate))
+          //println(Engine.toPem(entry.getCertificate))
         } catch {
           case e: DANEException => println("Failed to create DANEEntry")
         }
       }
     }
-
-    /*
-    val bindings = ctx.listBindings(domainName)
-    while (bindings.hasMore()) {
-      val b = bindings.next()
-      println(s"${b.getClassName}, ${b.toString}")
-    }
-    */
   }
 }
 
-class EmailConverter(oldHashAlgo: Boolean = false) {
+object DaneSearchAuto {
+
+  def main(args: Array[String]): Unit = {
+    if (args.length < 1) {
+      println("Usage: dane-search-auto [<dns-server>...] <name|email>")
+      sys.exit(1)
+    }
+
+    val dnsServers = args.init.map(s => "dns://" + s)
+
+    val fetcherFactory = new JndiDANEFetcherFactory()
+    dnsServers.foreach(dns => fetcherFactory.usingDNSServer(dns))
+
+    // If "name" is an email address, convert it using the old, SHA-224 algo (for now)
+    val domainName = if (args.last.contains("@")) new ConvertEmail(false).convert(args.last) else args.last
+
+    val fetcher = fetcherFactory.build(domainName)
+
+    import scala.collection.JavaConverters._
+    fetcher.getEntries.asScala.foreach { obj =>
+      val entry = obj.asInstanceOf[DANEEntry]
+      println(entry.getCertificate.getSubject)
+    }
+  }
+
+}
+
+class ConvertEmail(oldHashAlgo: Boolean = false) {
   val digestCalculator =
     if (oldHashAlgo) Engine.Sha224DigestCalculator else Engine.TruncatingDigestCalculator
 
@@ -104,9 +121,9 @@ class EmailConverter(oldHashAlgo: Boolean = false) {
   def convert(emailAddress: String): String = selectorFactory.createSelector(emailAddress).getDomainName
 }
 
-object EmailConverter {
+object ConvertEmail {
   def main(args: Array[String]): Unit = {
-    val usage = "Usage: email-converter [-old] <email address> [<email-address>...]"
+    val usage = "Usage: convert-email [-old] <email address> [<email-address>...]"
     if (args.length < 0) {
       println(usage)
       sys.exit(1)
@@ -125,15 +142,15 @@ object EmailConverter {
       case emailAddresses => emailAddresses
     }
 
-    val converter = new EmailConverter(old)
+    val converter = new ConvertEmail(old)
     emailAddresses.foreach(addr => println(converter.convert(addr)))
   }
 }
 
-object EncodeHex {
+object HexEncode {
   def main(args: Array[String]): Unit = {
     if (args.length < 2) {
-      println("Usage: encode-hex <infile> <outfile>")
+      println("Usage: hex-encode <infile> <outfile>")
       sys.exit(1)
     }
 
@@ -142,10 +159,10 @@ object EncodeHex {
   }
 }
 
-object DecodeHex {
+object HexDecode {
   def main(args: Array[String]): Unit = {
     if (args.length < 2) {
-      println("Usage: decode-hex <infile> <outfile>")
+      println("Usage: hex-decode <infile> <outfile>")
       sys.exit(1)
     }
 
@@ -154,4 +171,3 @@ object DecodeHex {
     Files.write(Paths.get(args(1)), Hex.decode(s))
   }
 }
-

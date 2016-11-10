@@ -8,6 +8,8 @@ import javax.ws.rs.core.{MediaType, Response}
 @Produces(Array(MediaType.APPLICATION_JSON))
 class Resource(engine: Engine) {
 
+  val genson = GensonConfig.genson
+
   @GET
   @Path("{email}/test")
   def pem(@PathParam("email") email: String): Seq[String] = {
@@ -20,10 +22,11 @@ class Resource(engine: Engine) {
   @GET
   @Path("{email}/test/{id}")
   def pem(@PathParam("email") email: String, @PathParam("id") id: Int): String = {
-    engine.certs(email)
+    val cert = engine.certs(email)
       .lift(id)
       .map(_.toString)
       .getOrElse(throw new WebApplicationException(Response.status(404).build()))
+    genson.serialize(cert)
   }
 
   @GET
@@ -46,12 +49,14 @@ class Resource(engine: Engine) {
   @GET
   @Path("{email}/{format: pem|hex|text|dnsZoneLine}/{id}")
   def certsForEmail(@PathParam("email") email: String, @PathParam("format") format: String, @PathParam("id") id: Int): String = {
-    certsForEmail(email, format).lift(id).getOrElse(throw new WebApplicationException(Response.status(404).build()))
+    val cert = certsForEmail(email, format).lift(id).getOrElse(throw new WebApplicationException(Response.status(404).build()))
+    genson.serialize(cert)
   }
 
   @POST
   @Path("{email}/dnsZoneLineForCert")
   def dnsZoneLine(@PathParam("email") email: String, pemEncodedCertificate: String): String = {
-    engine.dnsZoneLine(email, pemEncodedCertificate)
+    val zoneLine = engine.dnsZoneLine(email, pemEncodedCertificate)
+    genson.serialize(zoneLine)
   }
 }

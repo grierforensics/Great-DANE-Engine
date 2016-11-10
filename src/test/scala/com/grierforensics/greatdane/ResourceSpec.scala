@@ -102,30 +102,30 @@ class ResourceSpec extends FlatSpec {
   }
 
   it should "return a single text-format certificate as requested" in {
-    val (code, text) = get(makeUrl(Entry.email, "text", 1))
+    val (code, json) = get(makeUrl(Entry.email, "text", 1))
     assert(code == 200)
-    //val text = fromJson[String](json)
+    val text = fromJson[String](json)
     assert(text == Entry.text)
   }
 
   it should "return a single hex-format certificate as requested" in {
-    val (code, hex) = get(makeUrl(Entry.email, "hex", 1))
+    val (code, json) = get(makeUrl(Entry.email, "hex", 1))
     assert(code == 200)
-    //val hex = fromJson[String](json)
+    val hex = fromJson[String](json)
     assert(hex == Entry.hex)
   }
 
   it should "return a single pem-format certificate as requested" in {
-    val (code, pem) = get(makeUrl(Entry.email, "pem", 1))
+    val (code, json) = get(makeUrl(Entry.email, "pem", 1))
     assert(code == 200)
-    //val pem = fromJson[String](json)
+    val pem = fromJson[String](json)
     assert(pem == Entry.pem)
   }
 
   it should "return a single DNS zone line as requested" in {
-    val (code, line) = get(makeUrl(Entry.email, "dnsZoneLine", 1))
+    val (code, json) = get(makeUrl(Entry.email, "dnsZoneLine", 1))
     assert(code == 200)
-    //val line = fromJson[String](json)
+    val line = fromJson[String](json)
     assert(line == Entry.zoneLine)
   }
 
@@ -150,9 +150,9 @@ class ResourceSpec extends FlatSpec {
   }
 
   it should "create a valid DNS zone line given a PEM-format certificate" in {
-    val (code, line) = post(makeUrl(Entry.email, "dnsZoneLineForCert"), Entry.pem)
+    val (code, json) = post(makeUrl(Entry.email, "dnsZoneLineForCert"), Entry.pem)
     assert(code == 200)
-    //val line = fromJson[String](json)
+    val line = fromJson[String](json)
     assert(line == Entry.zoneLine)
   }
 
