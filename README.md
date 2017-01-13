@@ -5,13 +5,6 @@ An HTTP REST service for
 1. Retrieving certificates for an email address via DNS, DNSSEC, DANE and SMIMEA, and
 2. Generating DNS SMIMEA records for a given certificate
 
-## Bouncy Castle
-
-The DANE package (`org.bouncycastle.cert.dane`) is currently vendored within the
-Engine's source tree (`com.grierforensics.greatdane.bc`) to include recent changes
-made in Bouncy Castle's master git branch. We plan to revert to using
-`org.bouncycastle.cert.dane.*` upon the next release of Bouncy Castle.
-
 ## Implementation
 
 The HTTP REST service is implemented using Jersey and an embedded Jetty HTTP server.

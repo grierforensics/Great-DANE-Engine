@@ -3,7 +3,7 @@ package com.grierforensics.greatdane
 
 import com.grierforensics.greatdane.Engine.DaneEntryFetcher
 import org.bouncycastle.cert.X509CertificateHolder
-import com.grierforensics.greatdane.bc.{DANEEntryFetcher, DANEEntryFetcherFactory, DANEEntrySelectorFactory}
+import org.bouncycastle.cert.dane.{DANEEntryFetcher, DANEEntryFetcherFactory, DANEEntrySelectorFactory}
 import org.bouncycastle.util.encoders.Hex
 
 object TestValues {

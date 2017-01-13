@@ -5,8 +5,8 @@ import java.nio.file.{Files, Paths}
 import javax.naming.Context
 import javax.naming.directory.InitialDirContext
 
-import com.grierforensics.greatdane.bc.fetcher.JndiDANEFetcherFactory
-import com.grierforensics.greatdane.bc.{DANEEntry, DANEEntrySelectorFactory, DANEException}
+import org.bouncycastle.cert.dane.fetcher.JndiDANEFetcherFactory
+import org.bouncycastle.cert.dane.{DANEEntry, DANEEntrySelectorFactory, DANEException}
 import org.bouncycastle.util.encoders.Hex
 
 object GenDaneEntry {
