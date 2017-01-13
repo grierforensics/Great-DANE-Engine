@@ -11,25 +11,6 @@ class Resource(engine: Engine) {
   val genson = GensonConfig.genson
 
   @GET
-  @Path("{email}/test")
-  def pem(@PathParam("email") email: String): Seq[String] = {
-    engine.certs(email).map(_.toString) match {
-      case Nil => throw new WebApplicationException(Response.status(404).build())
-      case certs => certs
-    }
-  }
-
-  @GET
-  @Path("{email}/test/{id}")
-  def pem(@PathParam("email") email: String, @PathParam("id") id: Int): String = {
-    val cert = engine.certs(email)
-      .lift(id)
-      .map(_.toString)
-      .getOrElse(throw new WebApplicationException(Response.status(404).build()))
-    genson.serialize(cert)
-  }
-
-  @GET
   @Path("{email}/{format: pem|hex|text|dnsZoneLine}")
   def certsForEmail(@PathParam("email") email: String, @PathParam("format") format: String): Seq[String] = {
     val certs = format match {

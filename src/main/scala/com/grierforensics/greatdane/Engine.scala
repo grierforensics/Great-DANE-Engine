@@ -35,14 +35,6 @@ class Engine(dnsServers: String*) {
 
   val entryFetcher = new DaneEntryFetcher(fetcherFactory, TruncatingDigestCalculator)
 
-  /* PLACEHOLDER for testing */
-  val certdb = Map(
-    "joe" -> List("hello", "world", "goodbye", "all")
-  )
-  def certs(email: String): Seq[String] = {
-    certdb.getOrElse(email, Seq())
-  }
-
   /** Retrieves plaintext certificates for the given email address
     *
     * @param emailAddress target email address
