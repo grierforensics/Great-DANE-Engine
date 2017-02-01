@@ -1,0 +1,79 @@
+info:
+  appName: Great DANE Engine
+  appVersion: 1.0
+  url: http://dst.grierforensics.com/
+  javaVersion: 1.7
+  author:
+    name: Grier Forensics
+    email: jnaegele@grierforensics.com
+  runPrivileged:
+    enabled: yes
+    uninstaller: yes
+    condition: izpack.windowsinstall
+  createUninstaller: yes
+
+languages:
+  - eng
+
+guiprefs:
+  width: 450
+  height: 350
+  resizable: yes
+
+resources:
+  installDirectory:
+    os: unix,macosx
+    path: /user/local/gde
+  installDirectory:
+    os: windows
+    path: C:/Program Files/Great DANE Engine
+
+panels:
+  panel:
+    className: HelloPanel
+  #panel:
+    #className: LicencePanel
+  panel:
+    className: TargetPanel
+  panel:
+    className: PacksPanel
+  panel:
+    className: InstallPanel
+  panel:
+    className: SimpleFinishPanel
+
+packs:
+  pack:
+    name: Core Files
+    required: true
+    preselected: true
+    description: Engine binary and libraries
+    file:
+      src: ${appJar}
+      targetDir: $INSTALL_PATH/lib
+    fileset:
+      includes: ${allDependencies}
+      targetDir: $INSTALL_PATH/lib
+  pack:
+    name: System Service
+    required: false
+    preselected: true
+    description: Install as System Service
+    file:
+      src: bin
+      targetDir: $INSTALL_PATH
+    executable:
+      os: windows
+      stage: postinstall
+      keep: yes
+      targetFile: $INSTALL_PATH/bin/installService.bat
+    executable:
+      os: windows
+      stage: uninstall
+      keep: yes
+      targetFile: $INSTALL_PATH/bin/removeService.bat
+    executable:
+      os: unix,macosx
+      stage: never
+      keep: yes
+      targetFile: $INSTALL_PATH/bin/greatdaneengine.sh

@@ -26,6 +26,13 @@ libraryDependencies ++= Seq(
 
   "org.glassfish.jersey.core" % "jersey-server" % "2.24",
   "org.glassfish.jersey.containers" % "jersey-container-servlet" % "2.24",
-  "org.glassfish.jersey.containers" % "jersey-container-jetty-http" % "2.24"
+  "org.glassfish.jersey.containers" % "jersey-container-jetty-http" % "2.24",
+
+  "commons-daemon" % "commons-daemon" % "1.0.15"
 )
-    
+
+// Work-around for https://github.com/bmc/sbt-izpack/issues/19
+lazy val izArtifactPath = settingKey[String]("Obtain main artifact path")
+izArtifactPath := (artifactPath in (Compile, packageBin)).value.getPath
+// http://software.clapper.org/sbt-izpack/#settings
+variables in IzPack <+= izArtifactPath { path => ("appJar", path) }

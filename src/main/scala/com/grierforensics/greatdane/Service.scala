@@ -61,29 +61,29 @@ class GensonCustomResolver extends ContextResolver[Genson] {
   * @param port HTTP port on which to serve
   */
 class Service(engine: Engine, port: Int) extends LazyLogging {
-  val config = new ResourceConfig
+  private val config = new ResourceConfig
   config.register(new GensonJsonConverter(new GensonCustomResolver), ContractProvider.NO_PRIORITY)
   config.register(new CatchAllExceptionMapper, ContractProvider.NO_PRIORITY)
   config.register(new Resource(engine), ContractProvider.NO_PRIORITY)
   config.register(new LoggingFeature(Logger.getLogger(getClass.getName),
       LoggingFeature.Verbosity.HEADERS_ONLY), ContractProvider.NO_PRIORITY)
 
-  val servlet = new ServletHolder(new ServletContainer(config))
-  val server = new Server(port)
+  private val servlet = new ServletHolder(new ServletContainer(config))
+  private val server = new Server(port)
 
-  val context = new ServletContextHandler(server, "/")
+  private val context = new ServletContextHandler(server, "/")
   context.addServlet(servlet, "/*")
 
   /** Runs the service indefinitely */
   def run(): Unit = {
-    try {
-      server.start()
-      logger.info(s"Listening on port $port")
-      server.join()
-    } finally {
-      server.destroy()
-    }
+    server.start()
+    logger.info(s"Listening on port $port")
+    server.join()
   }
+
+  def isStarted: Boolean = server.isStarted
+
+  def stop(): Unit = server.stop()
 }
 
 object Service extends LazyLogging {

@@ -20,7 +20,7 @@ class ResourceSpec extends FlatSpec {
   }.start()
 
   // Wait to ensure service is up and running
-  while (!service.server.isStarted) {
+  while (!service.isStarted) {
     Thread.sleep(200)
   }
 
