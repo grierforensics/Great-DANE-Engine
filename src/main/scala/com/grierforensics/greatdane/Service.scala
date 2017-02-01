@@ -56,6 +56,9 @@ class GensonCustomResolver extends ContextResolver[Genson] {
   * See
   *   - https://www.acando.no/thedailypassion/200555/a-rest-service-with-jetty-and-jersey
   *   - http://nikgrozev.com/2014/10/16/rest-with-embedded-jetty-and-jersey-in-a-single-jar-step-by-step/
+  *
+  * @param engine Engine to use for service
+  * @param port HTTP port on which to serve
   */
 class Service(engine: Engine, port: Int) extends LazyLogging {
   val config = new ResourceConfig

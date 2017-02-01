@@ -12,7 +12,7 @@ The HTTP REST service is implemented using Jersey and an embedded Jetty HTTP ser
 ## Build
 
 The simplest way to build and run the Engine is to use the SBT `pack` target, provided
-by the great `sbt-pack` plugin. This builds a `bin/` and `lib/` directory containing
+by the `sbt-pack` plugin. This builds a `bin/` and `lib/` directory containing
 everything needed to run the service.
 
 ## Configuration

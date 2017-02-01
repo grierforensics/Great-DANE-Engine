@@ -9,6 +9,7 @@ import org.bouncycastle.cert.dane.fetcher.JndiDANEFetcherFactory
 import org.bouncycastle.cert.dane.{DANEEntry, DANEEntrySelectorFactory, DANEException}
 import org.bouncycastle.util.encoders.Hex
 
+/** Generates a DANE entry (DNS zone line) from a DER-encoded cert */
 object GenDaneEntry {
   def main(args: Array[String]): Unit = {
     if (args.length < 2) {
@@ -26,23 +27,20 @@ object GenDaneEntry {
 }
 
 /** Queries for DANE SMIMEA records */
-object DaneSearchManual {
+object DaneSearchOld {
 
-  def main(allArgs: Array[String]): Unit = {
-    if (allArgs.length < 1) {
-      println("Usage: dane-search-manual [-old] [<dns-server>...] <name|email>")
+  def main(args: Array[String]): Unit = {
+    if (args.length < 1) {
+      println("Usage: dane-search-old [<dns-server>...] <name|email>")
       sys.exit(1)
     }
 
-    val old = allArgs(0) == "-old"
-    val args = if (old) allArgs.tail else allArgs
-    val DaneType = if (old) Engine.OldDaneType else Engine.DaneType
+    val daneType = Engine.OldDaneType
 
     // The following is a "rewrite" of the core functionality of BouncyCastle's
-    // JndiDANEFetcherFactory class, which "accidentally" lists all bindings for
-    // a given domain name by calling `ctx.listBindings(domainName)`, which is
-    // explicitly rejected by many DNS servers. For Java DNS notes, see
-    // https://docs.oracle.com/javase/8/docs/technotes/guides/jndi/jndi-dns.html
+    // JndiDANEFetcherFactory class, which enables us to query for TYPE 65500
+    // DNS records, which were the original type for DANE SMIMEA entries.
+    // For Java DNS notes, see https://docs.oracle.com/javase/8/docs/technotes/guides/jndi/jndi-dns.html
     val env = new java.util.Hashtable[String, String]()
     env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory")
 
@@ -59,11 +57,11 @@ object DaneSearchManual {
 
     val ctx = new InitialDirContext(env)
 
-    // If "name" is an email address, convert it using the old, SHA-224 algo (for now)
-    val domainName = if (args.last.contains("@")) new ConvertEmail(old).convert(args.last) else args.last
+    // If "name" is an email address, convert it to hash-format
+    val domainName = if (args.last.contains("@")) new ConvertEmail(true).convert(args.last) else args.last
 
-    val attrs = ctx.getAttributes(domainName, Array(DaneType))
-    val smimeAttr = attrs.get(DaneType)
+    val attrs = ctx.getAttributes(domainName, Array(daneType))
+    val smimeAttr = attrs.get(daneType)
     if (smimeAttr != null) {
       println(s"Found ${smimeAttr.size()} SMIMEA records")
 
@@ -84,7 +82,7 @@ object DaneSearchManual {
   }
 }
 
-object DaneSearchAuto {
+object DaneSearch {
 
   def main(args: Array[String]): Unit = {
     if (args.length < 1) {
@@ -97,18 +95,19 @@ object DaneSearchAuto {
     val fetcherFactory = new JndiDANEFetcherFactory()
     dnsServers.foreach(dns => fetcherFactory.usingDNSServer(dns))
 
-    // If "name" is an email address, convert it using the old, SHA-224 algo (for now)
-    val domainName = if (args.last.contains("@")) new ConvertEmail(false).convert(args.last) else args.last
+    // If "name" is an email address, convert it to hash-format
+    val domainName = if (args.last.contains("@")) new ConvertEmail().convert(args.last) else args.last
 
     val fetcher = fetcherFactory.build(domainName)
 
     import scala.collection.JavaConverters._
-    fetcher.getEntries.asScala.foreach { obj =>
+    val entries = fetcher.getEntries.asScala
+    println(s"Found ${entries.length} SMIMEA records")
+    entries.foreach { obj =>
       val entry = obj.asInstanceOf[DANEEntry]
-      println(entry.getCertificate.getSubject)
+      println(s"Subject: ${entry.getCertificate.getSubject}")
     }
   }
-
 }
 
 class ConvertEmail(oldHashAlgo: Boolean = false) {

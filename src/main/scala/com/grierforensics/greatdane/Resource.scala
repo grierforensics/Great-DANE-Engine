@@ -10,6 +10,12 @@ class Resource(engine: Engine) {
 
   val genson = GensonConfig.genson
 
+  /** Retrieves all certificates for the given email address.
+    *
+    * @param email email address to search for
+    * @param format requested format of retrieved certificates
+    * @return all found certificates or 404 if none found
+    */
   @GET
   @Path("{email}/{format: pem|hex|text|dnsZoneLine}")
   def certsForEmail(@PathParam("email") email: String, @PathParam("format") format: String): Seq[String] = {
@@ -27,6 +33,13 @@ class Resource(engine: Engine) {
     }
   }
 
+  /** Retrieves a certificate for the given email address.
+    *
+    * @param email email address to search for
+    * @param format requested format of retrieved certificate
+    * @param id index of certificate requested
+    * @return certificate in requested format or 404 if not found
+    */
   @GET
   @Path("{email}/{format: pem|hex|text|dnsZoneLine}/{id}")
   def certsForEmail(@PathParam("email") email: String, @PathParam("format") format: String, @PathParam("id") id: Int): String = {
@@ -34,6 +47,13 @@ class Resource(engine: Engine) {
     genson.serialize(cert)
   }
 
+  /** Creates a DANE Entry for the given email address and POSTed certificate.
+    * Returns the corresponding DNS zone line.
+    *
+    * @param email email address to encode
+    * @param pemEncodedCertificate certificate to use in DANE entry
+    * @return
+    */
   @POST
   @Path("{email}/dnsZoneLineForCert")
   def dnsZoneLine(@PathParam("email") email: String, pemEncodedCertificate: String): String = {
