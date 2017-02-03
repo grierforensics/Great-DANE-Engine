@@ -59,3 +59,7 @@ by [Typesafe Config](https://github.com/typesafehub/config#standard-behavior).
 ## Run
 
 Run the `service` script found in `target/pack/bin/`.
+
+## License
+
+Dual-licensed under Apache License 2.0 and 3-Clause BSD License. See LICENSE.
