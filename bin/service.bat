@@ -33,7 +33,7 @@ set RETCODE=0
 set "CURRENT_DIR=%cd%"
 set "SELF=%~dp0%service.bat"
 
-rem Relocate to MockEngine install directory
+rem Relocate to Engine install directory
 cd "%~dp0"
 cd ..
 set "GREATDANEENGINE_HOME=%cd%"
@@ -76,8 +76,8 @@ set "GREATDANEENGINE_BASE=%GREATDANEENGINE_HOME%"
 set "EXECUTABLE=%GREATDANEENGINE_HOME%\bin\greatdaneengine.exe"
 
 rem Set default Service name
-set SERVICE_NAME=MockEngine
-set DISPLAYNAME=Grier Forensics Mock Engine - %SERVICE_NAME%
+set SERVICE_NAME=GreatDANEEngine
+set DISPLAYNAME=Grier Forensics %SERVICE_NAME%
 
 rem Handle command line arguments
 if "x%1x" == "xx" goto displayUsage
