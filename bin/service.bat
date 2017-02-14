@@ -17,7 +17,7 @@ rem ---------------------------------------------------------------------------
 rem NT Service Install/Uninstall script
 rem
 rem Options
-rem install                Install the service using MockEngine as service name.
+rem install                Install the service using GreatDANEEngine as service name.
 rem                        Service is installed using default settings.
 rem remove                 Remove the service from the System.
 rem
@@ -33,7 +33,7 @@ set RETCODE=0
 set "CURRENT_DIR=%cd%"
 set "SELF=%~dp0%service.bat"
 
-rem Relocate to MockEngine install directory
+rem Relocate to Engine install directory
 cd "%~dp0"
 cd ..
 set "GREATDANEENGINE_HOME=%cd%"
@@ -76,8 +76,8 @@ set "GREATDANEENGINE_BASE=%GREATDANEENGINE_HOME%"
 set "EXECUTABLE=%GREATDANEENGINE_HOME%\bin\greatdaneengine.exe"
 
 rem Set default Service name
-set SERVICE_NAME=MockEngine
-set DISPLAYNAME=Grier Forensics Mock Engine - %SERVICE_NAME%
+set SERVICE_NAME=GreatDANEEngine
+set DISPLAYNAME=Grier Forensics %SERVICE_NAME%
 
 rem Handle command line arguments
 if "x%1x" == "xx" goto displayUsage
@@ -179,7 +179,7 @@ echo Using JVM:              "%JVM%"
 set "CLASSPATH=%GREATDANEENGINE_HOME%\lib\*;"
 
 "%EXECUTABLE%" //IS//%SERVICE_NAME% ^
-    --Description "Mock Engine 1.0 - grierforensics.com" ^
+    --Description "Great DANE Engine 1.0 - grierforensics.com" ^
     --DisplayName "%DISPLAYNAME%" ^
     --Install "%EXECUTABLE%" ^
     --Startup auto ^
