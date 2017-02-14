@@ -69,6 +69,12 @@ class ResourceSpec extends FlatSpec {
     assert(code >= 400 && code < 500)
   }
 
+  it should "return pong when pinged" in {
+    val (code, res) = get(baseUrl + "/ping")
+    assert(code == 200)
+    assert(res == "pong")
+  }
+
   it should "return valid JSON containing all text-format certificates" in {
     val (code, json) = get(makeUrl(Entry.email, "text"))
     assert(code == 200)

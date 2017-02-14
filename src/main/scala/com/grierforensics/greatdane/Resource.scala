@@ -10,6 +10,14 @@ class Resource(engine: Engine) {
 
   val genson = GensonConfig.genson
 
+  /** Provides an endpoint for verifying connectivity
+    *
+    * @return "pong"
+    */
+  @GET
+  @Path("/ping")
+  def ping: String = "pong"
+
   /** Retrieves all certificates for the given email address.
     *
     * @param email email address to search for
