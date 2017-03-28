@@ -121,7 +121,7 @@ echo Using GREATDANEENGINE_BASE:    "%GREATDANEENGINE_BASE%"
     --LogPath "%GREATDANEENGINE_BASE%\logs"
 if not errorlevel 1 goto removed
 echo Failed to remove '%SERVICE_NAME%' service
-RETCODE=3
+set RETCODE=3
 goto end
 :removed
 echo The service '%SERVICE_NAME%' has been removed
@@ -136,7 +136,7 @@ echo Using GREATDANEENGINE_BASE:    "%GREATDANEENGINE_BASE%"
     --LogPath "%GREATDANEENGINE_BASE%\logs"
 if not errorlevel 1 goto started
 echo Failed to start '%SERVICE_NAME%' service
-RETCODE=4
+set RETCODE=4
 goto end
 :started
 echo The service '%SERVICE_NAME%' has been started
@@ -151,7 +151,7 @@ echo Using GREATDANEENGINE_BASE:    "%GREATDANEENGINE_BASE%"
     --LogPath "%GREATDANEENGINE_BASE%\logs"
 if not errorlevel 1 goto stopped
 echo Failed to stop '%SERVICE_NAME%' service
-RETCODE=5
+set RETCODE=5
 goto end
 :stopped
 echo The service '%SERVICE_NAME%' has been stopped
@@ -188,6 +188,7 @@ set "CLASSPATH=%GREATDANEENGINE_HOME%\lib\*;"
     --StdError auto ^
     --Classpath "%CLASSPATH%" ^
     --Jvm "%JVM%" ^
+    ++JvmOptions "-Dconfig.file=%GREATDANEENGINE_HOME%\conf\engine.conf" ^
     --StartMode jvm ^
     --StartPath "%GREATDANEENGINE_HOME%" ^
     --StartClass com.grierforensics.greatdane.Daemon ^
@@ -202,7 +203,7 @@ set "CLASSPATH=%GREATDANEENGINE_HOME%\lib\*;"
 rem --JvmOptions "-Dcatalina.home=%GREATDANEENGINE_HOME%;-Dcatalina.base=%GREATDANEENGINE_BASE%;-Djava.endorsed.dirs=%GREATDANEENGINE_HOME%\endorsed;-Djava.io.tmpdir=%GREATDANEENGINE_BASE%\temp;-Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager;-Djava.util.logging.config.file=%GREATDANEENGINE_BASE%\conf\logging.properties" ^
 if not errorlevel 1 goto installed
 echo Failed to install '%SERVICE_NAME%' service
-RETCODE=6
+set RETCODE=6
 goto end
 :installed
 echo The service '%SERVICE_NAME%' has been installed.
