@@ -60,6 +60,9 @@ packs:
     preselected: true
     description: Install as System Service
     file:
+      src: conf
+      targetDir: $INSTALL_PATH
+    file:
       src: bin
       targetDir: $INSTALL_PATH
     executable:
