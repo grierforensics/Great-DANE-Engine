@@ -9,20 +9,20 @@ import org.bouncycastle.cert.dane.fetcher.JndiDANEFetcherFactory
 import org.bouncycastle.cert.dane.{DANEEntry, DANEEntrySelectorFactory, DANEException}
 import org.bouncycastle.util.encoders.Hex
 
-/** Generates a DANE entry (DNS zone line) from a DER-encoded cert */
-object GenDaneEntry {
+/** Generates a DANE SMIMEA DNS entry (zone line) from a PEM-encoded cert */
+object GenerateZoneLine {
   def main(args: Array[String]): Unit = {
     if (args.length < 2) {
-      println("Usage: gen-dane-entry <email> <cert (DER)>")
+      println("Usage: gen-dane-entry <email> <cert (PEM)>")
       sys.exit(1)
     }
 
     val email = args(0)
-    val der = Files.readAllBytes(Paths.get(args(1)))
-    //val pem = new String(Files.readAllBytes(Paths.get(args(1))))
+    //val der = Files.readAllBytes(Paths.get(args(1)))
+    val pem = new String(Files.readAllBytes(Paths.get(args(1))))
 
     val engine = new Engine()
-    println(engine.dnsZoneLine(email, der))
+    println(engine.dnsZoneLine(email, pem))
   }
 }
 
@@ -86,7 +86,7 @@ object DaneSearch {
 
   def main(args: Array[String]): Unit = {
     if (args.length < 1) {
-      println("Usage: dane-search-auto [<dns-server>...] <name|email>")
+      println("Usage: dane-search [<dns-server>...] <name|email>")
       sys.exit(1)
     }
 
