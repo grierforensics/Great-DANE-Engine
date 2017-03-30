@@ -50,6 +50,8 @@ object Daemon {
     */
   var daemon: Daemon = _
 
+  Service.installLogging()
+
   def main(args: Array[String]): Unit = {
     if (args.length < 1) {
       println("Usage: greatdaneengine [start|stop]")

@@ -4,11 +4,11 @@ package com.grierforensics.greatdane
 import java.security.Security
 import java.security.cert.X509Certificate
 
-import org.bouncycastle.cert.dane._
-import org.bouncycastle.cert.dane.fetcher.JndiDANEFetcherFactory
 import org.bouncycastle.asn1.nist.NISTObjectIdentifiers
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier
 import org.bouncycastle.cert.X509CertificateHolder
+import org.bouncycastle.cert.dane._
+import org.bouncycastle.cert.dane.fetcher.JndiDANEFetcherFactory
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.openssl.PEMParser
