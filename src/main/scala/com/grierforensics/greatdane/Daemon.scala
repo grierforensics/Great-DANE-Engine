@@ -7,6 +7,8 @@ import com.typesafe.scalalogging.LazyLogging
   * See: https://commons.apache.org/proper/commons-daemon/jsvc.html
   */
 class Daemon extends LazyLogging {
+  Service.installLogging()
+
   var service: Service = _
 
   /** Create any necessary resources */
@@ -49,8 +51,6 @@ object Daemon {
     * singleton instance here.
     */
   var daemon: Daemon = _
-
-  Service.installLogging()
 
   def main(args: Array[String]): Unit = {
     if (args.length < 1) {

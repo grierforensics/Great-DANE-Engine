@@ -61,6 +61,8 @@ class GensonCustomResolver extends ContextResolver[Genson] {
   * @param port HTTP port on which to serve
   */
 class Service(engine: Engine, port: Int) extends LazyLogging {
+  Service.installLogging()
+
   private val config = new ResourceConfig
   config.register(new GensonJsonConverter(new GensonCustomResolver), ContractProvider.NO_PRIORITY)
   config.register(new CatchAllExceptionMapper, ContractProvider.NO_PRIORITY)
