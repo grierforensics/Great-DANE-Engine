@@ -1,4 +1,4 @@
-name := "engine"
+name := "great-dane-engine"
 
 version := "1.0"
 
