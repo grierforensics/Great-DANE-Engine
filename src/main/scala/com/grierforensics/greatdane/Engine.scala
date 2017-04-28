@@ -16,6 +16,9 @@ import org.bouncycastle.operator.DigestCalculator
 import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder
 import org.bouncycastle.util.encoders.Hex
 
+case class CertificateDetails(data: String, dnssecValidated: Boolean, ttl: Option[Int],
+                              certificateUsage: Option[Int], selector: Option[Int], matchingType: Option[Int])
+
 /** Core DANE SMIMEA Engine.
   *
   * Adds and retrieves DANE SMIMEA records to/from configured DNS server.
@@ -40,8 +43,9 @@ class Engine(dnsServers: String*) {
     * @param emailAddress target email address
     * @return zero or more plaintext certificates
     */
-  def text(emailAddress: String): Seq[String] = {
-    fetchCertificates(emailAddress).map(_.toString)
+  def text(emailAddress: String): Seq[CertificateDetails] = {
+    fetchCertificates(emailAddress, _.toString)
+
   }
 
   /** Retrieves hex-encodings of DER-encoded certificates for the given email address
@@ -49,8 +53,8 @@ class Engine(dnsServers: String*) {
     * @param emailAddress target email address
     * @return zero or more DER-encoded certificates (as hex strings)
     */
-  def hex(emailAddress: String): Seq[String] = {
-    fetchCertificates(emailAddress).map(toHex)
+  def hex(emailAddress: String): Seq[CertificateDetails] = {
+    fetchCertificates(emailAddress, toHex)
   }
 
   /** Retrieves PEM-encoded certificates for the given email address
@@ -58,8 +62,8 @@ class Engine(dnsServers: String*) {
     * @param emailAddress target email address
     * @return zero or more PEM-encoded certificates
     */
-  def pem(emailAddress: String): Seq[String] = {
-    fetchCertificates(emailAddress).map(toPem)
+  def pem(emailAddress: String): Seq[CertificateDetails] = {
+    fetchCertificates(emailAddress, toPem)
   }
 
   /** Retrieves X.509 certificates for the given email address using DANE SMIMEA
@@ -67,8 +71,11 @@ class Engine(dnsServers: String*) {
     * @param emailAddress target email address
     * @return zero or more X.509 certificates
     */
-  def fetchCertificates(emailAddress: String): Seq[X509Certificate] = {
-    fetchEntries(emailAddress: String).map(entry => convert(entry.getCertificate))
+  def fetchCertificates(emailAddress: String, encode: X509Certificate => String): Seq[CertificateDetails] = {
+    fetchEntries(emailAddress).map { entry =>
+      val flags = entry.getFlags
+      CertificateDetails(encode(convert(entry.getCertificate)), dnssecValidated = false, None, Some(flags(0)), Some(flags(1)), Some(flags(2)))
+    }
   }
 
   /** Creates sample DNS Zone lines for each DANE SMIMEA entry found in DNS
@@ -226,6 +233,6 @@ object Engine {
   /** Command-line tool for testing */
   def main(args: Array[String]): Unit = {
     val engine = new Engine()
-    engine.fetchCertificates(args(0)).foreach(cert => println(cert.getSubjectDN))
+    engine.fetchCertificates(args(0), _.toString).foreach(cert => println(cert))
   }
 }

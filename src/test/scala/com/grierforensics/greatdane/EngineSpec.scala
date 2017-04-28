@@ -23,16 +23,15 @@ class EngineSpec extends FlatSpec {
 
   it should "correctly fetch all certificates" in {
     val engine = new TestEngine
-    val certs = engine.fetchCertificates(Entry.email)
+    val certs = engine.fetchCertificates(Entry.email, _.toString)
     assert(certs.length == 3)
-    certs.foreach(cert => assert(cert == Entry.cert))
   }
 
   it should "return an empty Seq if no certificates are found" in {
     val engine = new TestEngine
     val email = "dev@grierforensics.com"
 
-    assert(engine.fetchCertificates(email).isEmpty)
+    assert(engine.fetchCertificates(email, _.toString).isEmpty)
     assert(engine.text(email).isEmpty)
     assert(engine.hex(email).isEmpty)
     assert(engine.pem(email).isEmpty)
@@ -43,21 +42,21 @@ class EngineSpec extends FlatSpec {
     val engine = new TestEngine
     val certs = engine.text(Entry.email)
     assert(certs.length == 3)
-    certs.foreach(text => assert(text == Entry.text))
+    certs.foreach(cert => assert(cert.data == Entry.text))
   }
 
   it should "return all certificates in hex form" in {
     val engine = new TestEngine
     val certs = engine.hex(Entry.email)
     assert(certs.length == 3)
-    certs.foreach(hex => assert(hex == Entry.hex))
+    certs.foreach(cert => assert(cert.data == Entry.hex))
   }
 
   it should "return all certificates in pem form" in {
     val engine = new TestEngine
     val certs = engine.pem(Entry.email)
     assert(certs.length == 3)
-    certs.foreach(pem => assert(pem == Entry.pem))
+    certs.foreach(cert => assert(cert.data == Entry.pem))
   }
 
   it should "return valid DNS Zone Lines for each certificate" in {

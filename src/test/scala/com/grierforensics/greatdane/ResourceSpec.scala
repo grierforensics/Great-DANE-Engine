@@ -78,54 +78,54 @@ class ResourceSpec extends FlatSpec {
   it should "return valid JSON containing all text-format certificates" in {
     val (code, json) = get(makeUrl(Entry.email, "text"))
     assert(code == 200)
-    val texts = fromJson[Seq[String]](json)
-    assert(texts.length == 3)
-    texts.foreach(text => assert(text == Entry.text))
+    val certs = fromJson[CertificateResponse](json)
+    assert(certs.certificates.length == 3)
+    certs.certificates.foreach(cert => assert(cert.data == Entry.text))
   }
 
   it should "return valid JSON containing all hex-format certificates" in {
     val (code, json) = get(makeUrl(Entry.email, "hex"))
     assert(code == 200)
-    val hexs = fromJson[Seq[String]](json)
-    assert(hexs.length == 3)
-    hexs.foreach(hex => assert(hex == Entry.hex))
+    val certs = fromJson[CertificateResponse](json)
+    assert(certs.certificates.length == 3)
+    certs.certificates.foreach(cert => assert(cert.data == Entry.hex))
   }
 
   it should "return valid JSON containing all pem-format certificates" in {
     val (code, json) = get(makeUrl(Entry.email, "pem"))
     assert(code == 200)
-    val pems = fromJson[Seq[String]](json)
-    assert(pems.length == 3)
-    pems.foreach(pem => assert(pem == Entry.pem))
+    val certs = fromJson[CertificateResponse](json)
+    assert(certs.certificates.length == 3)
+    certs.certificates.foreach(cert => assert(cert.data == Entry.pem))
   }
 
   it should "return valid JSON containing all corresponding DNS zone lines" in {
     val (code, json) = get(makeUrl(Entry.email, "dnsZoneLine"))
     assert(code == 200)
-    val lines = fromJson[Seq[String]](json)
-    assert(lines.length == 3)
-    lines.foreach(line => assert(line == Entry.zoneLine))
+    val resp = fromJson[ZoneLineResponse](json)
+    assert(resp.zoneLines.length == 3)
+    resp.zoneLines.foreach(line => assert(line == Entry.zoneLine))
   }
 
   it should "return a single text-format certificate as requested" in {
     val (code, json) = get(makeUrl(Entry.email, "text", 1))
     assert(code == 200)
-    val text = fromJson[String](json)
-    assert(text == Entry.text)
+    val cert = fromJson[CertificateDetails](json)
+    assert(cert.data == Entry.text)
   }
 
   it should "return a single hex-format certificate as requested" in {
     val (code, json) = get(makeUrl(Entry.email, "hex", 1))
     assert(code == 200)
-    val hex = fromJson[String](json)
-    assert(hex == Entry.hex)
+    val cert = fromJson[CertificateDetails](json)
+    assert(cert.data == Entry.hex)
   }
 
   it should "return a single pem-format certificate as requested" in {
     val (code, json) = get(makeUrl(Entry.email, "pem", 1))
     assert(code == 200)
-    val pem = fromJson[String](json)
-    assert(pem == Entry.pem)
+    val cert = fromJson[CertificateDetails](json)
+    assert(cert.data == Entry.pem)
   }
 
   it should "return a single DNS zone line as requested" in {
