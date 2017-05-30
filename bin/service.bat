@@ -189,6 +189,7 @@ set "CLASSPATH=%GREATDANEENGINE_HOME%\lib\*;"
     --Classpath "%CLASSPATH%" ^
     --Jvm "%JVM%" ^
     ++JvmOptions "-Dconfig.file=%GREATDANEENGINE_HOME%\conf\engine.conf" ^
+    ++JvmOptions "-Dlogback.configurationFile=%GREATDANEENGINE_HOME%\conf\logback.xml" ^
     --StartMode jvm ^
     --StartPath "%GREATDANEENGINE_HOME%" ^
     --StartClass com.grierforensics.greatdane.Daemon ^

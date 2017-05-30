@@ -4,7 +4,19 @@ version := "1.0"
 
 scalaVersion := "2.11.8"
 
-packAutoSettings
+val configJvmOpt = Seq(
+  "-Dconfig.file=${PROG_HOME}/conf/engine.conf",
+  "-Dlogback.configurationFile=${PROG_HOME}/conf/logback.xml"
+)
+
+packAutoSettings ++ Seq(
+  // Ensure each command-line script loads the custom config file
+  packJvmOpts := Map(
+    "service" -> configJvmOpt,
+    "daemon" -> configJvmOpt,
+    "dane-search" -> configJvmOpt
+  )
+)
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.0" % "test",

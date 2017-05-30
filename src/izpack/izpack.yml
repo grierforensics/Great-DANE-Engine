@@ -51,6 +51,9 @@ packs:
     file:
       src: ${appJar}
       targetDir: $INSTALL_PATH/lib
+    file:
+      src: src/pack/conf
+      targetDir: $INSTALL_PATH
     fileset:
       includes: ${allDependencies}
       targetDir: $INSTALL_PATH/lib
@@ -59,9 +62,6 @@ packs:
     required: false
     preselected: true
     description: Install as System Service
-    file:
-      src: conf
-      targetDir: $INSTALL_PATH
     file:
       src: bin
       targetDir: $INSTALL_PATH
