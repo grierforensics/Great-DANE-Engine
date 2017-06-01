@@ -2,7 +2,7 @@
 
 Great DANE is a suite of tools designed to enable users to send secure, private emails without having to explicitly exchange public keys. By default, email is sent in the clear (without encryption) and unsigned (unauthenticated). S/MIME solves both of these problems by encrypting and signing emails, however it requires you to have the certificate belonging to your correspondent, presenting a chicken-and-egg problem. By using the DNS as a secure distributed database for S/MIME certificates, we can eliminate this barrier and finally make email completely confidential and authenticated.
 
-For more information on DANE SMIMEA, please see the [IETF RFC](https://tools.ietf.org/html/draft-ietf-dane-smime-16).
+For more information on DANE SMIMEA, please see the [IETF RFC](https://tools.ietf.org/html/rfc8162).
 
 # Great DANE Engine
 
@@ -62,7 +62,7 @@ $ JAVA_OPTS=-Dcom.grierforensics.greatdane.engine.dns.0="8.8.8.8" ./target/pack/
     Retrieves all certificates for the given email address.
     - `email`: email address to resolve
     - `format`: requested format of retrieved certificates
-    - returns certificates in requested format or 404 if not found
+    - returns response containing certificate in requested format or 404 if not found
 
 2. `GET {email}/{format: pem|hex|text|dnsZoneLine}/{id}`
 
@@ -70,7 +70,7 @@ $ JAVA_OPTS=-Dcom.grierforensics.greatdane.engine.dns.0="8.8.8.8" ./target/pack/
     - `email`: email address to resolve
     - `format`: requested format of retrieved certificate
     - `id`: index of certificate requested
-    - returns certificate in requested format or 404 if not found
+    - returns response containing certificate in requested format or 404 if not found
 
 3. `POST {email}/dnsZoneLineForCert`
 
@@ -78,6 +78,25 @@ $ JAVA_OPTS=-Dcom.grierforensics.greatdane.engine.dns.0="8.8.8.8" ./target/pack/
     - email: email address to encode
     - POST body: certificate to use in DANE entry (encoded in PEM format)
     - returns the corresponding DNS zone line
+
+The certificate retrieval APIs return a response of the form:
+
+```json
+{
+  "certificates": [
+    {
+      "data": string (encoded certificate),
+      "ttl": integer (from DNS record),
+      "dnssecValidated": boolean (whether DNSSEC validation was successful),
+      "certificateUsage": integer (as per RFC6698 and RFC8162),
+      "selector": integer (as per RFC6698 and RFC8162),
+      "matchingType": integer (as per RFC6698 and RFC8162)
+    }
+  ]
+}
+```
+
+Note that the Great DANE Engine does not currently implement DNSSEC validation, however the API is designed so that this functionality can be supported in the future.
 
 ## Build
 
