@@ -1,5 +1,7 @@
 # Great DANE
 
+<img src="https://tools.greatdanenow.com/GreatDaneLogo3.0_wTagline_WEB.png" align="right" width="300" />
+
 Great DANE is a suite of tools designed to enable users to send secure, private emails without having to explicitly exchange public keys. By default, email is sent in the clear (without encryption) and unsigned (unauthenticated). S/MIME solves both of these problems by encrypting and signing emails, however it requires you to have the certificate belonging to your correspondent, presenting a chicken-and-egg problem. By using the DNS as a secure distributed database for S/MIME certificates, we can eliminate this barrier and finally make email completely confidential and authenticated.
 
 For more information on DANE SMIMEA, please see the [IETF RFC](https://tools.ietf.org/html/rfc8162).
